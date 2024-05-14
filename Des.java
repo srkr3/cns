@@ -1,7 +1,4 @@
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
+import javax.crypto.*;
 import java.util.Base64;
 import java.util.Scanner;
 
@@ -10,10 +7,12 @@ public class Des {
     private static Cipher decryptCipher;
 
     public static void main(String[] args) throws Exception {
-        String secretKey = "ERwduthg"; // must be 8 characters for DES
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter text to be encrypted: ");
         String plainText = sc.nextLine();
+
+        // Generate DES key
+        SecretKey secretKey = generateDESKey();
 
         setupEncryptor(secretKey);
 
@@ -26,16 +25,17 @@ public class Des {
         sc.close();
     }
 
-    public static void setupEncryptor(String secretKey) throws Exception {
-        DESKeySpec desKeySpec = new DESKeySpec(secretKey.getBytes());
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
-        SecretKey key = keyFactory.generateSecret(desKeySpec);
+    public static SecretKey generateDESKey() throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("DES");
+        return keyGen.generateKey();
+    }
 
+    public static void setupEncryptor(SecretKey secretKey) throws Exception {
         encryptCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
         decryptCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
-        decryptCipher.init(Cipher.DECRYPT_MODE, key);
+        decryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
     }
 
     public static String encrypt(String str) throws Exception {
